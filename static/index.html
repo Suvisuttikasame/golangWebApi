@@ -6,14 +6,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Go App</title>
 </head>
-<body>
-    <h1>Hello World</h1>
-    <form action="/form" method="POST">
-        <label for="name">Your name</label>
-        <input type="text" id="name" name="name"><br>
-        <label for="address">Your address</label>
-        <input type="text" id="address" name="address"><br>
-        <input type="submit">
-    </form>
+<body style="display: none;">
+    <h1>Golang Tutorial</h1>
+    <div>
+        <h3>Noter</h3>
+        <form action="/form" method="POST" id="noteform">
+            <label for="topic">Topic</label>
+            <input type="text" id="topic" name="topic"><br>
+        </form>
+        <textarea rows="4" cols="40" name="note" form="noteform" placeholder="type detail here ..."></textarea><br>
+        <label>Please choose your satisfaction point.</label>
+        <select id="emotion" name="emotion" form="noteform">
+            <option value="4">verygood 😀</option>
+            <option value="3">good 🙂</option>
+            <option value="2">so so 😗</option>
+            <option value="1">bad 😰</option>
+        </select><br>
+        <input type="submit" form="noteform">
+    </div>
+    <div>
+        <h2>Table to Display Note</h2>
+        <table>
+            <tr>
+                <th>id</th>
+                <th>topic</th>
+                <th>note</th>
+
+            </tr>
+
+        </table>
+    </div>
+    <script>
+        import * as axios from "axios"
+
+                        
+    </script>
 </body>
 </html>

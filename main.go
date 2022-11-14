@@ -40,16 +40,29 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintf(w, "Post request is successful!\n")
-	name := r.FormValue("name")
-	addr := r.FormValue("address")
-	fmt.Fprintf(w, "user name : %s\n", name)
-	fmt.Fprintf(w, "user address : %s\n", addr)
-	_, err = db.Query(`INSERT INTO mytable(name, address)
-	VALUES($1, $2)`, name, addr)
+	topic := r.FormValue("topic")
+	note := r.FormValue("note")
+	rating := r.FormValue("emotion")
+	fmt.Fprintf(w, "user topic : %s\n", topic)
+	fmt.Fprintf(w, "user note : %s\n", note)
+	fmt.Fprintf(w, "user rating : %s\n", rating)
+	_, err = db.Query(`INSERT INTO mytable(name, address, rating)
+	VALUES($1, $2, $3)`, topic, note, rating)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+}
+
+func getAllHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Starting to get all data")
+	row, err := db.Query(`SELECT * from mytable`)
+	if err != nil {
+		fmt.Println("Fail to get all data")
+		log.Fatal(err)
+		return
+	}
+	fmt.Println(row)
 }
 
 func main() {
@@ -75,6 +88,7 @@ func main() {
 	http.Handle("/", fileServer)
 	http.HandleFunc("/form", formHandler)
 	http.HandleFunc("/hello", helloHandler)
+	http.HandleFunc("/get-all-notes", getAllHandler)
 
 	fmt.Println("Starting server at port 8080")
 	err = http.ListenAndServe(":8080", nil)
