@@ -55,14 +55,32 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAllHandler(w http.ResponseWriter, r *http.Request) {
+	var(
+		id int
+		name string
+		address string
+		rating *int
+	)
 	fmt.Println("Starting to get all data")
-	row, err := db.Query(`SELECT * from mytable`)
+	rows, err := db.Query(`SELECT * from mytable`)
+	defer rows.Close()
 	if err != nil {
 		fmt.Println("Fail to get all data")
 		log.Fatal(err)
 		return
 	}
-	fmt.Println(row)
+	for rows.Next() {
+		err := rows.Scan(&id, &name, &address, &rating)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(id, name, address, rating)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Fprintf(w, "finish to load all data")
 }
 
 func main() {
