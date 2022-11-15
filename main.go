@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,20 +19,6 @@ const (
 )
 
 var db *sql.DB
-
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/hello" {
-		http.Error(w, "404 not found", http.StatusNotFound)
-		return
-	}
-	if r.Method != "GET" {
-		http.Error(w, "method is not supported", http.StatusNotFound)
-		return
-	}
-
-	//this allow to access w in order to write file
-	fmt.Fprintf(w, "hello!")
-}
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
@@ -55,11 +42,18 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAllHandler(w http.ResponseWriter, r *http.Request) {
-	var(
-		id int
-		name string
-		address string
-		rating *int
+	type data struct {
+		Id      int
+		Name    string
+		Address string
+		Rating  int64
+	}
+	var datas []data
+	var (
+		id      int
+		name    sql.NullString
+		address sql.NullString
+		rating  sql.NullInt64
 	)
 	fmt.Println("Starting to get all data")
 	rows, err := db.Query(`SELECT * from mytable`)
@@ -74,13 +68,22 @@ func getAllHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(id, name, address, rating)
+		fmt.Println(name.String)
+		datas = append(datas, data{
+			Id:      id,
+			Name:    name.String,
+			Address: address.String,
+			Rating:  rating.Int64,
+		})
 	}
+	js, err := json.Marshal(datas)
 	err = rows.Err()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Fprintf(w, "finish to load all data")
+	fmt.Println(string(js))
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
 }
 
 func main() {
@@ -105,7 +108,6 @@ func main() {
 	fileServer := http.FileServer(http.Dir("./static"))
 	http.Handle("/", fileServer)
 	http.HandleFunc("/form", formHandler)
-	http.HandleFunc("/hello", helloHandler)
 	http.HandleFunc("/get-all-notes", getAllHandler)
 
 	fmt.Println("Starting server at port 8080")

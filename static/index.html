@@ -33,14 +33,16 @@
                 <th>id</th>
                 <th>topic</th>
                 <th>note</th>
-
+                <th>rating</th>
             </tr>
 
         </table>
     </div>
     <script>
+        let allInfo
         axios.get("/get-all-notes")
         .then(function (response){
+            allInfo = response.data
             console.log(response)
         })
         .catch(function(error){
@@ -48,7 +50,40 @@
         })
         .finally(function(){
             $(document).ready(function () {
-                $(document.body).append("<h1>Finish getting data</h1>")
+                let dataRows
+                if (allInfo.length > 0) {
+                    allInfo.forEach(element => {
+                        let emotion
+                        switch (element.Rating) {
+                            case 0:
+                                emotion = "No rating 🤫"
+                                break;
+                            case 1:
+                                emotion = "bad 😰"
+                                break;
+                            case 2:
+                                emotion = "so so 😗"
+                                break;
+                            case 3:
+                                emotion = "good 🙂"
+                                break;
+                            case 4:
+                                emotion = "verygood 😀"
+                                break;                        
+                            default:
+                                break;
+                        }
+                        const row = `<tr>
+                                        <td>${element.Id}</td>
+                                        <td>${element.Name}</td>
+                                        <td>${element.Address}</td>
+                                        <td>${emotion}</td>
+                                    </tr>`
+                        
+                        dataRows += row
+                    });                    
+                }
+                $('table').append(dataRows)
                 $(document.body).show()                
             })
         })
