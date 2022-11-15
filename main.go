@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	_ "github.com/lib/pq"
 )
@@ -86,6 +87,11 @@ func getAllHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
+func deleteIdHandler(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimPrefix(r.URL.Path, "/delete-by-id/")
+	fmt.Println("deleted", id)
+}
+
 func main() {
 	fmt.Println("Go Server Start here!")
 	var err error
@@ -109,6 +115,7 @@ func main() {
 	http.Handle("/", fileServer)
 	http.HandleFunc("/form", formHandler)
 	http.HandleFunc("/get-all-notes", getAllHandler)
+	http.HandleFunc("/delete-by-id/", deleteIdHandler)
 
 	fmt.Println("Starting server at port 8080")
 	err = http.ListenAndServe(":8080", nil)

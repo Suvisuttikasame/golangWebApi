@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://kit.fontawesome.com/e56a94356b.js" crossorigin="anonymous"></script>
     <title>Go App</title>
 </head>
 <body style="display: none;">
@@ -34,12 +35,23 @@
                 <th>topic</th>
                 <th>note</th>
                 <th>rating</th>
+                <th>action</th>
             </tr>
 
         </table>
     </div>
     <script>
         let allInfo
+        async function deleteInfo(id){
+            console.log("delete", id)
+            try {
+                response = await axios.delete(`/delete-by-id/${id}`)
+
+            } catch (error) {
+                console.log(error)                
+            }
+        }
+
         axios.get("/get-all-notes")
         .then(function (response){
             allInfo = response.data
@@ -78,6 +90,7 @@
                                         <td>${element.Name}</td>
                                         <td>${element.Address}</td>
                                         <td>${emotion}</td>
+                                        <td><button onclick="deleteInfo(${element.Id})" style="cursor: pointer; background: white; border: none;"><i class="fas fa-trash-alt" style="color: red;"></i></button></td>
                                     </tr>`
                         
                         dataRows += row
