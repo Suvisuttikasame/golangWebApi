@@ -1,0 +1,24 @@
+{
+  "name": "golangwebapi",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Suvisuttikasame/golangWebApi.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Suvisuttikasame/golangWebApi/issues"
+  },
+  "homepage": "https://github.com/Suvisuttikasame/golangWebApi#readme",
+  "dependencies": {
+    "axios": "^1.1.3"
+  }
+}

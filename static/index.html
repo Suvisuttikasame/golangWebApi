@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <title>Go App</title>
+</head>
+<body style="display: none;">
+    <h1>Golang Tutorial</h1>
+    <div>
+        <h3>Noter</h3>
+        <form action="/form" method="POST" id="noteform">
+            <label for="topic">Topic</label>
+            <input type="text" id="topic" name="topic"><br>
+        </form>
+        <textarea rows="4" cols="40" name="note" form="noteform" placeholder="type detail here ..."></textarea><br>
+        <label>Please choose your satisfaction point.</label>
+        <select id="emotion" name="emotion" form="noteform">
+            <option value="4">verygood 😀</option>
+            <option value="3">good 🙂</option>
+            <option value="2">so so 😗</option>
+            <option value="1">bad 😰</option>
+        </select><br>
+        <input type="submit" form="noteform">
+    </div>
+    <div>
+        <h2>Table to Display Note</h2>
+        <table>
+            <tr>
+                <th>id</th>
+                <th>topic</th>
+                <th>note</th>
+
+            </tr>
+
+        </table>
+    </div>
+    <script>
+        axios.get("/get-all-notes")
+        .then(function (response){
+            console.log(response)
+        })
+        .catch(function(error){
+            console.log(error)
+        })
+        .finally(function(){
+            $(document).ready(function () {
+                $(document.body).append("<h1>Finish getting data</h1>")
+                $(document.body).show()                
+            })
+        })
+
+                        
+    </script>
+</body>
+</html>
