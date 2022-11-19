@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	_ "github.com/lib/pq"
 )
@@ -26,18 +27,19 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Error to read form : message: %v", err)
 		return
 	}
-	fmt.Fprintf(w, "Post request is successful!\n")
+	// fmt.Fprintf(w, "Post request is successful!\n")
 	topic := r.FormValue("topic")
 	note := r.FormValue("note")
 	rating := r.FormValue("emotion")
-	fmt.Fprintf(w, "user topic : %s\n", topic)
-	fmt.Fprintf(w, "user note : %s\n", note)
-	fmt.Fprintf(w, "user rating : %s\n", rating)
+	// fmt.Fprintf(w, "user topic : %s\n", topic)
+	// fmt.Fprintf(w, "user note : %s\n", note)
+	// fmt.Fprintf(w, "user rating : %s\n", rating)
 	_, err = db.Query(`INSERT INTO mytable(name, address, rating)
 	VALUES($1, $2, $3)`, topic, note, rating)
 	if err != nil {
 		log.Fatal(err)
 	}
+	http.Redirect(w, r, "/", http.StatusFound)
 
 }
 
@@ -55,7 +57,7 @@ func getAllHandler(w http.ResponseWriter, r *http.Request) {
 		address sql.NullString
 		rating  sql.NullInt64
 	)
-	fmt.Println("Starting to get all data")
+	// fmt.Println("Starting to get all data")
 	rows, err := db.Query(`SELECT * from mytable`)
 	defer rows.Close()
 	if err != nil {
@@ -68,7 +70,6 @@ func getAllHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(name.String)
 		datas = append(datas, data{
 			Id:      id,
 			Name:    name.String,
@@ -80,10 +81,23 @@ func getAllHandler(w http.ResponseWriter, r *http.Request) {
 	err = rows.Err()
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
-	fmt.Println(string(js))
+	// fmt.Println(string(js))
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
+}
+
+func deleteIdHandler(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimPrefix(r.URL.Path, "/delete-by-id/")
+	fmt.Println("deleted", id)
+	sqlCommand := fmt.Sprintf("DELETE FROM mytable WHERE id = %v", id)
+	_, err := db.Query(sqlCommand)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	w.Write([]byte("success"))
 }
 
 func main() {
@@ -109,6 +123,7 @@ func main() {
 	http.Handle("/", fileServer)
 	http.HandleFunc("/form", formHandler)
 	http.HandleFunc("/get-all-notes", getAllHandler)
+	http.HandleFunc("/delete-by-id/", deleteIdHandler)
 
 	fmt.Println("Starting server at port 8080")
 	err = http.ListenAndServe(":8080", nil)
