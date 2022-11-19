@@ -46,6 +46,9 @@
             console.log("delete", id)
             try {
                 response = await axios.delete(`/delete-by-id/${id}`)
+                if (response.data === "success") {
+                    window.location.reload();
+                }
 
             } catch (error) {
                 console.log(error)                
@@ -63,7 +66,7 @@
         .finally(function(){
             $(document).ready(function () {
                 let dataRows
-                if (allInfo.length > 0) {
+                if (allInfo && allInfo.length > 0) {
                     allInfo.forEach(element => {
                         let emotion
                         switch (element.Rating) {
@@ -95,8 +98,8 @@
                         
                         dataRows += row
                     });                    
+                    $('table').append(dataRows)
                 }
-                $('table').append(dataRows)
                 $(document.body).show()                
             })
         })
