@@ -1,3 +1,5 @@
+//go:build unit
+
 package db
 
 import (
@@ -54,6 +56,7 @@ func TestStore(t *testing.T) {
 		WithArgs(md.FromAccountID, -md.Amount).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "account_id", "amount", "created_at"}).AddRow(2, md.FromAccountID, -md.Amount, ti))
 
+	//unit test update account
 	mock.ExpectCommit()
 
 	s := NewStore(db)
