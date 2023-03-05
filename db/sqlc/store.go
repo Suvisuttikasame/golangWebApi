@@ -81,25 +81,43 @@ func (s *Store) TransferTx(ctx context.Context, arg TransferParams) (TransferRes
 		}
 
 		//Todo update account
+		//This query is used to avoid deadlock between transaction because in table that has relation and in transaction process is not allowed to read or write.
 		ta, err := q.GetAccountForUpdate(ctx, arg.ToAccountID)
 		if err != nil {
 			return err
 		}
-
-		result.ToAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
-			ID:      arg.ToAccountID,
-			Balance: ta.Balance + arg.Amount,
-		})
-
+		//This query is used to avoid deadlock between transaction because in table that has relation and in transaction process is not allowed to read or write.
 		fa, err := q.GetAccountForUpdate(ctx, arg.FromAccountID)
 		if err != nil {
 			return err
 		}
 
-		result.FromAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
-			ID:      arg.FromAccountID,
-			Balance: fa.Balance - arg.Amount,
-		})
+		//Also we need to order update account from lower id to higher id because we not allow to transfer accId 1 to accId 2 and accId2 to accId1 concurrently due to a deadlock.
+		//Always need to update lower account first! so that will be blocked by same account in diff transaction[after commit will unblock].
+
+		if arg.ToAccountID < arg.FromAccountID {
+			result.ToAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
+				ID:      arg.ToAccountID,
+				Balance: ta.Balance + arg.Amount,
+			})
+
+			result.FromAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
+				ID:      arg.FromAccountID,
+				Balance: fa.Balance - arg.Amount,
+			})
+
+		} else {
+			result.FromAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
+				ID:      arg.FromAccountID,
+				Balance: ta.Balance - arg.Amount,
+			})
+
+			result.ToAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
+				ID:      arg.ToAccountID,
+				Balance: fa.Balance + arg.Amount,
+			})
+
+		}
 
 		return nil
 
