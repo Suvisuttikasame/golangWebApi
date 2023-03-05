@@ -8,9 +8,9 @@ RETURNING *;
 
 -- name: UpdateAccount :one
 UPDATE accounts
-  set owner = $2,
+  set owner = COALESCE(NULLIF($2, ''), owner),
   balance = $3,
-  currency = $4
+  currency = COALESCE(NULLIF($4, ''), currency)
 WHERE id = $1
 RETURNING *;
 
