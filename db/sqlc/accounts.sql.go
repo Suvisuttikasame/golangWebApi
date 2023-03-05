@@ -129,26 +129,26 @@ func (q *Queries) ListAccount(ctx context.Context) ([]Account, error) {
 
 const updateAccount = `-- name: UpdateAccount :one
 UPDATE accounts
-  set owner = COALESCE(NULLIF($2, ''), owner),
-  balance = $3,
-  currency = COALESCE(NULLIF($4, ''), currency)
-WHERE id = $1
+  set owner = COALESCE(NULLIF($1, ''), owner) ,
+  balance = $2,
+  currency = COALESCE(NULLIF($3, ''), currency)
+WHERE id = $4
 RETURNING id, owner, balance, currency, created_at
 `
 
 type UpdateAccountParams struct {
-	ID      int64       `json:"id"`
-	Column2 interface{} `json:"column_2"`
-	Balance int64       `json:"balance"`
-	Column4 interface{} `json:"column_4"`
+	Owner    interface{} `json:"owner"`
+	Balance  int64       `json:"balance"`
+	Currency interface{} `json:"currency"`
+	ID       int64       `json:"id"`
 }
 
 func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
 	row := q.db.QueryRowContext(ctx, updateAccount,
-		arg.ID,
-		arg.Column2,
+		arg.Owner,
 		arg.Balance,
-		arg.Column4,
+		arg.Currency,
+		arg.ID,
 	)
 	var i Account
 	err := row.Scan(

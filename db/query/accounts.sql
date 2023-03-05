@@ -8,10 +8,10 @@ RETURNING *;
 
 -- name: UpdateAccount :one
 UPDATE accounts
-  set owner = COALESCE(NULLIF($2, ''), owner),
-  balance = $3,
-  currency = COALESCE(NULLIF($4, ''), currency)
-WHERE id = $1
+  set owner = COALESCE(NULLIF(sqlc.arg(owner), ''), owner) ,
+  balance = sqlc.arg(balance),
+  currency = COALESCE(NULLIF(sqlc.arg(currency), ''), currency)
+WHERE id = sqlc.arg(id)
 RETURNING *;
 
 -- name: ListAccount :many

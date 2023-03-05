@@ -32,7 +32,7 @@ func (s *Store) execTx(ctx context.Context, fn func(q *Queries) error) error {
 		}
 		return err
 	}
-
+	fmt.Println("finish query")
 	return tx.Commit()
 
 }
@@ -107,6 +107,7 @@ func (s *Store) TransferTx(ctx context.Context, arg TransferParams) (TransferRes
 			})
 
 		} else {
+			fmt.Println("I'm here")
 			result.FromAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
 				ID:      arg.FromAccountID,
 				Balance: ta.Balance - arg.Amount,
