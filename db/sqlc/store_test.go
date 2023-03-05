@@ -1,5 +1,3 @@
-//go:build unit
-
 package db
 
 import (
@@ -16,7 +14,7 @@ func TestStore(t *testing.T) {
 	md := TransferParams{
 		ToAccountID:   2,
 		FromAccountID: 1,
-		Amount:        100,
+		Amount:        10,
 	}
 	ti := time.Now()
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
@@ -55,6 +53,44 @@ func TestStore(t *testing.T) {
 	RETURNING id, account_id, amount, created_at`).
 		WithArgs(md.FromAccountID, -md.Amount).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "account_id", "amount", "created_at"}).AddRow(2, md.FromAccountID, -md.Amount, ti))
+
+	mock.ExpectQuery(`-- name: GetAccountForUpdate :one
+	SELECT id, owner, balance, currency, created_at FROM accounts
+	WHERE id = $1 LIMIT 1
+	FOR NO KEY UPDATE`).
+		WithArgs(md.ToAccountID).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "owner", "balance", "currency", "created_at"}).
+			AddRow(md.ToAccountID, "logan", 100.00, "THB", ti))
+
+	mock.ExpectQuery(`-- name: GetAccountForUpdate :one
+	SELECT id, owner, balance, currency, created_at FROM accounts
+	WHERE id = $1 LIMIT 1
+	FOR NO KEY UPDATE`).
+		WithArgs(md.FromAccountID).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "owner", "balance", "currency", "created_at"}).
+			AddRow(md.FromAccountID, "salah", 100.00, "THB", ti))
+
+	mock.ExpectQuery(`-- name: UpdateAccount :one
+	UPDATE accounts
+	set owner = COALESCE(NULLIF($1, ''), owner) ,
+	balance = $2,
+	currency = COALESCE(NULLIF($3, ''), currency)
+	WHERE id = $4
+	RETURNING id, owner, balance, currency, created_at`).
+		WithArgs(sqlmock.AnyArg(), 100-md.Amount, sqlmock.AnyArg(), md.FromAccountID).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "owner", "balance", "currency", "created_at"}).
+			AddRow(md.FromAccountID, "salah", 100-md.Amount, "THB", ti))
+
+	mock.ExpectQuery(`-- name: UpdateAccount :one
+	UPDATE accounts
+	set owner = COALESCE(NULLIF($1, ''), owner) ,
+	balance = $2,
+	currency = COALESCE(NULLIF($3, ''), currency)
+	WHERE id = $4
+	RETURNING id, owner, balance, currency, created_at`).
+		WithArgs(sqlmock.AnyArg(), 100+md.Amount, sqlmock.AnyArg(), md.ToAccountID).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "owner", "balance", "currency", "created_at"}).
+			AddRow(md.ToAccountID, "logan", 100+md.Amount, "THB", ti))
 
 	//unit test update account
 	mock.ExpectCommit()
