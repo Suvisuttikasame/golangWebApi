@@ -104,13 +104,13 @@ func TestUpdateAccount(t *testing.T) {
 	}
 
 	mock.ExpectQuery(`-- name: UpdateAccount :one
-						UPDATE accounts
-							set owner = $2,
-							balance = $3,
-							currency = $4
-						WHERE id = $1
-						RETURNING id, owner, balance, currency, created_at`).
-		WithArgs(up.ID, up.Owner, up.Balance, up.Currency).
+				UPDATE accounts
+				set owner = COALESCE(NULLIF($1, ''), owner) ,
+				balance = $2,
+				currency = COALESCE(NULLIF($3, ''), currency)
+				WHERE id = $4
+				RETURNING id, owner, balance, currency, created_at`).
+		WithArgs(up.Owner, up.Balance, up.Currency, up.ID).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "owner", "balance", "currency", "created_at"}).
 			AddRow(up.ID, up.Owner, up.Balance, up.Currency, ti))
 
