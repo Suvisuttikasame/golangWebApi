@@ -81,12 +81,12 @@ func (s *Store) TransferTx(ctx context.Context, arg TransferParams) (TransferRes
 		}
 
 		//Todo update account
-		//This query is used to avoid deadlock between transaction because in table that has relation and in transaction process is not allowed to read or write.
+		//This query is used to block the other transaction that read the data concurrently before do thing else.
 		ta, err := q.GetAccountForUpdate(ctx, arg.ToAccountID)
 		if err != nil {
 			return err
 		}
-		//This query is used to avoid deadlock between transaction because in table that has relation and in transaction process is not allowed to read or write.
+		///This query is used to block the other transaction that read the data concurrently before do thing else.
 		fa, err := q.GetAccountForUpdate(ctx, arg.FromAccountID)
 		if err != nil {
 			return err
