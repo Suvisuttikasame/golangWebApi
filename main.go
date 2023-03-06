@@ -4,14 +4,19 @@ import (
 	"database/sql"
 	"goApp/api"
 	db "goApp/db/sqlc"
+	"goApp/util"
 	"log"
 
 	_ "github.com/lib/pq"
 )
 
 func main() {
-	psqlInfo := "host=localhost port=5432 user=postgres password=postgres dbname=simple_bank sslmode=disable"
-	conn, err := sql.Open("postgres", psqlInfo)
+	config, err := util.NewConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	conn, err := sql.Open("postgres", config.PostgresInfo)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -19,8 +24,7 @@ func main() {
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
 
-	addr := "localhost:3000"
-	err = server.Start(addr)
+	err = server.Start(config.Addr)
 	if err != nil {
 		log.Fatal(err)
 	}
