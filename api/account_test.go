@@ -32,7 +32,7 @@ func TestCreateAccountAPI(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	ti := mockTime()
+	ti := util.MockTime()
 
 	mock.ExpectQuery(`-- name: CreateAccount :one
 	INSERT INTO accounts (
@@ -54,8 +54,4 @@ func TestCreateAccountAPI(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, `{"id":1,"owner":"john","balance":0,"currency":"THB","created_at":"2023-01-01T12:45:40.000000003Z"}`, rec.Body.String())
 
-}
-
-func mockTime() time.Time {
-	return time.Date(2023, 1, 1, 12, 45, 40, 3, time.UTC)
 }
