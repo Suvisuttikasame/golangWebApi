@@ -4,11 +4,11 @@ package api
 
 import (
 	db "goApp/db/sqlc"
+	"goApp/util"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gin-gonic/gin"
