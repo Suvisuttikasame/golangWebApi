@@ -2,13 +2,22 @@ package authentication
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 type JWTAuthen struct {
 	token     string
 	secretKey []byte
+}
+
+type MyClaim struct {
+	Id       uuid.UUID
+	Username string
+	Email    string
+	jwt.RegisteredClaims
 }
 
 func NewJWTToken(k []byte) (Authen, error) {
@@ -18,25 +27,32 @@ func NewJWTToken(k []byte) (Authen, error) {
 }
 
 func (j *JWTAuthen) CreateToken(b Body) (string, error) {
+	claim := MyClaim{
+		b.id,
+		b.username,
+		b.email,
+		jwt.RegisteredClaims{
+			Issuer:    b.username,
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
 	//jwt create token
-	tok := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":         b.id,
-		"username":   b.username,
-		"email":      b.email,
-		"created_at": b.created_at,
-		"expired_at": b.expired_at,
-	})
+	tok := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
 
 	tokenString, err := tok.SignedString(j.secretKey)
 	if err != nil {
 		return "", err
 	}
+	j.token = tokenString
 
 	return tokenString, nil
 }
 
 func (j *JWTAuthen) Verification(t string) bool {
-	token, err := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
+	var c MyClaim
+	token, err := jwt.ParseWithClaims(t, &c, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -45,12 +61,13 @@ func (j *JWTAuthen) Verification(t string) bool {
 		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 		return j.secretKey, nil
 	})
+	if err != nil {
+		return false
+	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println(claims)
+	if _, ok := token.Claims.(*MyClaim); ok && token.Valid {
 		return true
 	} else {
-		fmt.Println(err)
 		return false
 	}
 
