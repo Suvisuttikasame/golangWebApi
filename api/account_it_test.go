@@ -28,6 +28,12 @@ func TestITCreateAccountAPI(t *testing.T) {
 	conn, err := sql.Open("postgres", psql)
 
 	assert.Nil(t, err)
+	_, err = db.SeedUser(conn, db.CreateUserParams{
+		Username: "tommy",
+		Email:    "tommy@mail.com",
+		Password: "test",
+	})
+	assert.Nil(t, err)
 
 	var a db.Account
 

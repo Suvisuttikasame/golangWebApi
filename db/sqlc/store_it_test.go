@@ -16,8 +16,25 @@ func TestItStore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	_, err = SeedUser(db, CreateUserParams{
+		Username: "p1",
+		Email:    "p1@mail.com",
+		Password: "test",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	a1, err := seedAccount(db, CreateAccountParams{
+	_, err = SeedUser(db, CreateUserParams{
+		Username: "p2",
+		Email:    "p2@mail.com",
+		Password: "test",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	a1, err := SeedAccount(db, CreateAccountParams{
 		Owner:    "p1",
 		Balance:  100,
 		Currency: "THB",
@@ -26,7 +43,7 @@ func TestItStore(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	a2, err := seedAccount(db, CreateAccountParams{
+	a2, err := SeedAccount(db, CreateAccountParams{
 		Owner:    "p2",
 		Balance:  100,
 		Currency: "THB",
@@ -53,13 +70,4 @@ func initTestDB() (*sql.DB, error) {
 
 	return db, err
 
-}
-
-func seedAccount(db *sql.DB, arg CreateAccountParams) (Account, error) {
-	q := New(db)
-	a, err := q.CreateAccount(context.Background(), arg)
-	if err != nil {
-		return a, err
-	}
-	return a, nil
 }
