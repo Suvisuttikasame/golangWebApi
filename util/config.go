@@ -2,12 +2,13 @@ package util
 
 import "github.com/spf13/viper"
 
-type config struct {
+type Config struct {
 	PostgresInfo string `mapstructure:"POSTGRES_INFO"`
 	Addr         string `mapstructure:"ADDR"`
+	SecretKey    string `mapstructure:"SECRET_KEY"`
 }
 
-func NewConfig() (*config, error) {
+func NewConfig() (*Config, error) {
 	// Tell viper the path/location of your env file. If it is root just add "."
 	viper.AddConfigPath(".")
 
@@ -22,7 +23,7 @@ func NewConfig() (*config, error) {
 		return nil, err
 	}
 
-	var c *config
+	var c *Config
 	err = viper.Unmarshal(&c)
 	if err != nil {
 		return nil, err

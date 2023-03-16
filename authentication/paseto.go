@@ -36,7 +36,7 @@ func NewPasetoToken(key []byte) (Authen, error) {
 
 func (p *PasetoAuthen) CreateToken(b Body) (string, error) {
 	payload := PasetoPayload{
-		Issuer:     b.username,
+		Issuer:     b.Username,
 		IssuedAt:   time.Now(),
 		Expiration: time.Now().Add(2 * time.Hour),
 	}

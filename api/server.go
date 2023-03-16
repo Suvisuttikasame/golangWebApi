@@ -2,6 +2,7 @@ package api
 
 import (
 	db "goApp/db/sqlc"
+	"goApp/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,11 +10,18 @@ import (
 type Server struct {
 	store  *db.Store
 	router *gin.Engine
+	config *util.Config
 }
 
-func NewServer(s *db.Store) *Server {
-	server := &Server{store: s}
+func NewServer(s *db.Store, cfg *util.Config) *Server {
+	server := &Server{
+		store:  s,
+		config: cfg,
+	}
 	r := gin.Default()
+
+	r.POST("/users/register", server.Register)
+	r.POST("/users/login", server.Login)
 
 	r.POST("/accounts", server.CreateAccount)
 	r.GET("/accounts", server.GetAllAccount)

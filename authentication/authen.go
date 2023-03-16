@@ -5,9 +5,9 @@ import (
 )
 
 type Body struct {
-	id       uuid.UUID
-	username string
-	email    string
+	Id       uuid.UUID
+	Username string
+	Email    string
 }
 
 type Authen interface {

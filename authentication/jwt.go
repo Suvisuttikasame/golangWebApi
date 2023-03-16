@@ -28,11 +28,11 @@ func NewJWTToken(k []byte) (Authen, error) {
 
 func (j *JWTAuthen) CreateToken(b Body) (string, error) {
 	claim := MyClaim{
-		b.id,
-		b.username,
-		b.email,
+		b.Id,
+		b.Username,
+		b.Email,
 		jwt.RegisteredClaims{
-			Issuer:    b.username,
+			Issuer:    b.Username,
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
