@@ -12,9 +12,9 @@ import (
 func TestJWT(t *testing.T) {
 	t.Run("create jwt token success should return token", func(t *testing.T) {
 		b := Body{
-			id:       uuid.New(),
-			username: "test",
-			email:    "test@mail.com",
+			Id:       uuid.New(),
+			Username: "test",
+			Email:    "test@mail.com",
 		}
 		var s string
 
@@ -30,9 +30,9 @@ func TestJWT(t *testing.T) {
 
 	t.Run("validate jwt token success should return true", func(t *testing.T) {
 		b := Body{
-			id:       uuid.New(),
-			username: "test",
-			email:    "test@mail.com",
+			Id:       uuid.New(),
+			Username: "test",
+			Email:    "test@mail.com",
 		}
 
 		j, err := NewJWTToken([]byte("secret"))

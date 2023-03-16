@@ -12,9 +12,9 @@ import (
 func TestPasetoToken(t *testing.T) {
 	t.Run("create paseto token should return paseto token", func(t *testing.T) {
 		body := Body{
-			id:       uuid.New(),
-			username: "test",
-			email:    "test@mail.com",
+			Id:       uuid.New(),
+			Username: "test",
+			Email:    "test@mail.com",
 		}
 		var s string
 
