@@ -38,7 +38,6 @@ func TestPasetoToken(t *testing.T) {
 		r := p.Verification(token)
 
 		t.Log(r)
-		assert.True(t, true, r)
 
 	})
 

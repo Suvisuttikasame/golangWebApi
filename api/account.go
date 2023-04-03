@@ -2,7 +2,9 @@ package api
 
 import (
 	"database/sql"
+	"fmt"
 	db "goApp/db/sqlc"
+	"goApp/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +28,7 @@ func (sv *Server) CreateAccount(ctx *gin.Context) {
 	var req CreateAccountRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
 	cap := db.CreateAccountParams{
@@ -37,7 +39,7 @@ func (sv *Server) CreateAccount(ctx *gin.Context) {
 
 	a, err := sv.store.CreateAccount(ctx, cap)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
 	}
 
@@ -50,17 +52,17 @@ func (sv *Server) GetOneAccount(ctx *gin.Context) {
 
 	err := ctx.ShouldBindUri(&id)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
 
 	a, err := sv.store.GetAccount(ctx, id.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, ErrorResponse(err))
+			ctx.JSON(http.StatusNotFound, util.ErrorResponse(err))
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
 	}
 
@@ -71,8 +73,10 @@ func (sv *Server) GetAllAccount(ctx *gin.Context) {
 	var p GetAllAccountQyeryParam
 
 	err := ctx.ShouldBindQuery(&p)
+	data, _ := ctx.Get("authorization_key")
+	fmt.Println("breakdown data", data)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
 
@@ -83,7 +87,7 @@ func (sv *Server) GetAllAccount(ctx *gin.Context) {
 
 	l, err := sv.store.ListAccount(ctx, la)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
 	}
 

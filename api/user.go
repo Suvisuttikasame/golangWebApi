@@ -39,12 +39,12 @@ func (sv *Server) Register(ctx *gin.Context) {
 
 	err := ctx.ShouldBind(&req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
 	hp, err := util.HashPassword(req.Password)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
 	}
 
@@ -56,7 +56,7 @@ func (sv *Server) Register(ctx *gin.Context) {
 
 	u, err := sv.store.CreateUser(ctx, up)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
 	}
 
@@ -74,39 +74,34 @@ func (sv *Server) Login(ctx *gin.Context) {
 
 	err := ctx.ShouldBind(&req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
 
 	u, err := sv.store.GetUser(ctx, req.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, ErrorResponse(err))
+			ctx.JSON(http.StatusNotFound, util.ErrorResponse(err))
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
 	}
 
 	r := util.CheckPasswordHash(req.Password, u.Password)
 	if !r {
-		ctx.JSON(http.StatusBadRequest, ErrorResponse(errors.New("incorrect password!")))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(errors.New("incorrect password!")))
 		return
 	}
-	key := sv.config.SecretKey
-	p, err := authentication.NewPasetoToken([]byte(key))
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
-		return
-	}
+
 	b := authentication.Body{
 		Id:       uuid.New(),
 		Username: u.Username,
 		Email:    u.Email,
 	}
-	token, err := p.CreateToken(b)
+	token, err := sv.tokerMaker.CreateToken(b)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
 	}
 

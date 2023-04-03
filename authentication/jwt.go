@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -50,7 +51,7 @@ func (j *JWTAuthen) CreateToken(b Body) (string, error) {
 	return tokenString, nil
 }
 
-func (j *JWTAuthen) Verification(t string) bool {
+func (j *JWTAuthen) Verification(t string) (*MyClaim, error) {
 	var c MyClaim
 	token, err := jwt.ParseWithClaims(t, &c, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
@@ -62,13 +63,13 @@ func (j *JWTAuthen) Verification(t string) bool {
 		return j.secretKey, nil
 	})
 	if err != nil {
-		return false
+		return nil, err
 	}
 
-	if _, ok := token.Claims.(*MyClaim); ok && token.Valid {
-		return true
+	if cl, ok := token.Claims.(*MyClaim); ok && token.Valid {
+		return cl, nil
 	} else {
-		return false
+		return nil, errors.New("invalid token")
 	}
 
 }

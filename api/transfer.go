@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	db "goApp/db/sqlc"
+	"goApp/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,13 +20,13 @@ func (sv *Server) CreateTransfer(ctx *gin.Context) {
 
 	err := ctx.ShouldBind(&tr)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
 
 	err = sv.validateTransferData(ctx, tr)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
 
@@ -37,7 +38,7 @@ func (sv *Server) CreateTransfer(ctx *gin.Context) {
 
 	r, err := sv.store.TransferTx(ctx, tp)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
 	}
 

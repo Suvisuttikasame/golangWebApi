@@ -10,8 +10,14 @@ type Body struct {
 	Email    string
 }
 
+type AuthenPaseto interface {
+	CreateToken(b Body) (string, error)
+
+	Verification(t string) (*PasetoPayload, error)
+}
+
 type Authen interface {
 	CreateToken(b Body) (string, error)
 
-	Verification(t string) bool
+	Verification(t string) (*MyClaim, error)
 }

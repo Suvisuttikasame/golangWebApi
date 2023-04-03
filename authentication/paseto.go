@@ -23,7 +23,7 @@ func (pl *PasetoPayload) Valid() error {
 	return nil
 }
 
-func NewPasetoToken(key []byte) (Authen, error) {
+func NewPasetoToken(key []byte) (AuthenPaseto, error) {
 	if len(key) != chacha20poly1305.KeySize {
 		return nil, fmt.Errorf("invalid key size: must be exactly %d characters", chacha20poly1305.KeySize)
 	}
@@ -50,22 +50,22 @@ func (p *PasetoAuthen) CreateToken(b Body) (string, error) {
 	return token, err
 }
 
-func (p *PasetoAuthen) Verification(t string) bool {
+func (p *PasetoAuthen) Verification(t string) (*PasetoPayload, error) {
 	var payload PasetoPayload
 
 	err := p.token.Decrypt(t, p.symmetricKey, &payload, nil)
 	fmt.Println(payload)
 	fmt.Println(err)
 	if err != nil {
-		return false
+		return nil, err
 	}
 
 	err = payload.Valid()
 	fmt.Println(err)
 	if err != nil {
-		return false
+		return nil, err
 	}
 
-	return true
+	return &payload, nil
 
 }
