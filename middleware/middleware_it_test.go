@@ -1,3 +1,5 @@
+//go:build integration
+
 package middleware
 
 import (
@@ -21,11 +23,6 @@ func TestAuthMiddleware(t *testing.T) {
 		c, _ := gin.CreateTestContext(rec)
 		c.Request = req
 
-		// body := authentication.Body{
-		// 	Id:       uuid.New(),
-		// 	Username: "test",
-		// 	Email:    "test@mail.com",
-		// }
 		key := "asdfgjhtuasdfgjhtuasdfgjhtuasdfg"
 		p, err := authentication.NewPasetoToken([]byte(key))
 		if err != nil {

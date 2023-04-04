@@ -41,7 +41,8 @@ func TestJWT(t *testing.T) {
 		tk, err := j.CreateToken(b)
 		assert.Nil(t, err)
 
-		r := j.Verification(tk)
+		r, err := j.Verification(tk)
+		assert.Nil(t, err)
 		t.Log(r)
 
 	})
