@@ -8,7 +8,6 @@ import (
 	"goApp/authentication"
 	db "goApp/db/sqlc"
 	"goApp/middleware"
-	"goApp/util"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -27,11 +26,8 @@ func TestITCreateAccountAPI(t *testing.T) {
 		Username: "tommy",
 		Email:    "test@mail.com",
 	}
-	config, err := util.NewConfig("..")
-	if err != nil {
-		t.Fatal(err)
-	}
-	p, err := authentication.NewPasetoToken([]byte(config.SecretKey))
+
+	p, err := authentication.NewPasetoToken([]byte("asdfgjhtuasdfgjhtuasdfgjhtuasdfg"))
 	if err != nil {
 		t.Fatal(err)
 	}

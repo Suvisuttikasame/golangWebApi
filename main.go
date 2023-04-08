@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	config, err := util.NewConfig(".")
+	config, err := util.NewConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
