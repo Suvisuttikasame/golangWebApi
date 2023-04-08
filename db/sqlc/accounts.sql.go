@@ -95,16 +95,25 @@ func (q *Queries) GetAccountForUpdate(ctx context.Context, id int64) (Account, e
 
 const listAccount = `-- name: ListAccount :many
 SELECT id, owner, balance, currency, created_at FROM accounts
+WHERE owner = $1
 ORDER BY id
+LIMIT $2
+OFFSET $3
 `
 
-func (q *Queries) ListAccount(ctx context.Context) ([]Account, error) {
-	rows, err := q.db.QueryContext(ctx, listAccount)
+type ListAccountParams struct {
+	Owner  string `json:"owner"`
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+}
+
+func (q *Queries) ListAccount(ctx context.Context, arg ListAccountParams) ([]Account, error) {
+	rows, err := q.db.QueryContext(ctx, listAccount, arg.Owner, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Account
+	items := []Account{}
 	for rows.Next() {
 		var i Account
 		if err := rows.Scan(

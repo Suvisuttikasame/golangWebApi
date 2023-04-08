@@ -1,5 +1,3 @@
-//go:build unit
-
 package db
 
 import (
@@ -52,13 +50,22 @@ func TestGetAllAccount(t *testing.T) {
 
 	mock.ExpectQuery(`-- name: ListAccount :many
 	SELECT id, owner, balance, currency, created_at FROM accounts
-	ORDER BY id`).
+	WHERE owner = $1
+	ORDER BY id
+	LIMIT $2
+	OFFSET $3`).
+		WithArgs("ronaldo", 2, 0).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "owner", "balance", "currency", "created_at"}).
 			AddRow(1, "ronaldo", 100.00, "THB", ti).
-			AddRow(2, "messi", 200.00, "THB", ti))
+			AddRow(2, "ronaldo", 200.00, "USD", ti))
+	lp := ListAccountParams{
+		Owner:  "ronaldo",
+		Limit:  2,
+		Offset: 0,
+	}
 
 	q := New(db)
-	items, err := q.ListAccount(context.Background())
+	items, err := q.ListAccount(context.Background(), lp)
 
 	assert.Nil(t, err)
 	assert.Greater(t, len(items), 0)

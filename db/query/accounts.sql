@@ -16,7 +16,10 @@ RETURNING *;
 
 -- name: ListAccount :many
 SELECT * FROM accounts
-ORDER BY id;
+WHERE owner = $1
+ORDER BY id
+LIMIT $2
+OFFSET $3;
 
 -- name: GetAccount :one
 SELECT * FROM accounts

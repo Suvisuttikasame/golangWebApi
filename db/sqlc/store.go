@@ -8,13 +8,13 @@ import (
 
 type Store struct {
 	db *sql.DB
-	q  *Queries
+	*Queries
 }
 
 func NewStore(db *sql.DB) *Store {
 	return &Store{
-		db: db,
-		q:  New(db),
+		db:      db,
+		Queries: New(db),
 	}
 }
 
@@ -32,7 +32,6 @@ func (s *Store) execTx(ctx context.Context, fn func(q *Queries) error) error {
 		}
 		return err
 	}
-	fmt.Println("finish query")
 	return tx.Commit()
 
 }
@@ -107,15 +106,14 @@ func (s *Store) TransferTx(ctx context.Context, arg TransferParams) (TransferRes
 			})
 
 		} else {
-			fmt.Println("I'm here")
 			result.FromAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
 				ID:      arg.FromAccountID,
-				Balance: ta.Balance - arg.Amount,
+				Balance: fa.Balance - arg.Amount,
 			})
 
 			result.ToAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
 				ID:      arg.ToAccountID,
-				Balance: fa.Balance + arg.Amount,
+				Balance: ta.Balance + arg.Amount,
 			})
 
 		}
