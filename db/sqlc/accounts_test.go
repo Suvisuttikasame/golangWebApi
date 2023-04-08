@@ -50,14 +50,16 @@ func TestGetAllAccount(t *testing.T) {
 
 	mock.ExpectQuery(`-- name: ListAccount :many
 	SELECT id, owner, balance, currency, created_at FROM accounts
+	WHERE owner = $1
 	ORDER BY id
-	LIMIT $1
-	OFFSET $2`).
-		WithArgs(2, 0).
+	LIMIT $2
+	OFFSET $3`).
+		WithArgs("ronaldo", 2, 0).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "owner", "balance", "currency", "created_at"}).
 			AddRow(1, "ronaldo", 100.00, "THB", ti).
-			AddRow(2, "messi", 200.00, "THB", ti))
+			AddRow(2, "ronaldo", 200.00, "USD", ti))
 	lp := ListAccountParams{
+		Owner:  "ronaldo",
 		Limit:  2,
 		Offset: 0,
 	}

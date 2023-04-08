@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"goApp/authentication"
 	db "goApp/db/sqlc"
 	"goApp/util"
 	"net/http"
@@ -26,7 +27,11 @@ func (sv *Server) CreateTransfer(ctx *gin.Context) {
 
 	err = sv.validateTransferData(ctx, tr)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
+		code := http.StatusBadRequest
+		if err.Error() == "from account is not belong to this user" {
+			code = http.StatusUnauthorized
+		}
+		ctx.JSON(code, util.ErrorResponse(err))
 		return
 	}
 
@@ -59,6 +64,11 @@ func (sv *Server) validateTransferData(ctx *gin.Context, arg CreateTransferReque
 	a2, err := sv.store.GetAccount(ctx, arg.ToAccountID)
 	if err != nil {
 		return err
+	}
+
+	authPayload := ctx.MustGet("authorization_key").(*authentication.PasetoPayload)
+	if a1.Owner != authPayload.Issuer {
+		return errors.New("from account is not belong to this user")
 	}
 
 	if a1.Currency != a2.Currency {

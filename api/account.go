@@ -2,7 +2,8 @@ package api
 
 import (
 	"database/sql"
-	"fmt"
+	"errors"
+	"goApp/authentication"
 	db "goApp/db/sqlc"
 	"goApp/util"
 	"net/http"
@@ -11,7 +12,6 @@ import (
 )
 
 type CreateAccountRequest struct {
-	Owner    string `json:"owner" binding:"required"`
 	Currency string `json:"currency" binding:"required,oneof=THB USD"`
 }
 
@@ -31,8 +31,10 @@ func (sv *Server) CreateAccount(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
+	authPayload := ctx.MustGet("authorization_key").(*authentication.PasetoPayload)
+
 	cap := db.CreateAccountParams{
-		Owner:    req.Owner,
+		Owner:    authPayload.Issuer,
 		Currency: req.Currency,
 		Balance:  0,
 	}
@@ -55,6 +57,7 @@ func (sv *Server) GetOneAccount(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
+	authPayload := ctx.MustGet("authorization_key").(*authentication.PasetoPayload)
 
 	a, err := sv.store.GetAccount(ctx, id.ID)
 	if err != nil {
@@ -65,6 +68,11 @@ func (sv *Server) GetOneAccount(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
 	}
+	if authPayload.Issuer != a.Owner {
+		err = errors.New("this account is not belong to this user")
+		ctx.JSON(http.StatusUnauthorized, util.ErrorResponse(err))
+		return
+	}
 
 	ctx.JSON(http.StatusOK, a)
 }
@@ -73,14 +81,16 @@ func (sv *Server) GetAllAccount(ctx *gin.Context) {
 	var p GetAllAccountQyeryParam
 
 	err := ctx.ShouldBindQuery(&p)
-	data, _ := ctx.Get("authorization_key")
-	fmt.Println("breakdown data", data)
+	// data, _ := ctx.Get("authorization_key")
+	// fmt.Println("breakdown data", data)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
+	authPayload := ctx.MustGet("authorization_key").(*authentication.PasetoPayload)
 
 	la := db.ListAccountParams{
+		Owner:  authPayload.Issuer,
 		Limit:  p.PageSize,
 		Offset: (p.PageId - 1) * p.PageSize,
 	}
