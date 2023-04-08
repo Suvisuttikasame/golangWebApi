@@ -4,6 +4,7 @@ package api
 
 import (
 	"encoding/json"
+	"goApp/authentication"
 	db "goApp/db/sqlc"
 	"goApp/util"
 	"net/http"
@@ -26,6 +27,10 @@ func TestCreateTransferAPI(t *testing.T) {
 
 	c, _ := gin.CreateTestContext(rec)
 	c.Request = req
+	payload := authentication.PasetoPayload{
+		Issuer: "john",
+	}
+	c.Set("authorization_key", &payload)
 
 	ti := util.MockTime()
 
