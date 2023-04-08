@@ -8,9 +8,9 @@ type Config struct {
 	SecretKey    string `mapstructure:"SECRET_KEY"`
 }
 
-func NewConfig() (*Config, error) {
+func NewConfig(path string) (*Config, error) {
 	// Tell viper the path/location of your env file. If it is root just add "."
-	viper.AddConfigPath(".")
+	viper.AddConfigPath(path)
 
 	// Tell viper the name of your file
 	viper.SetConfigName("app")
