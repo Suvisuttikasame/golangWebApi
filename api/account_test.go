@@ -1,8 +1,10 @@
 //go:build unit
+//go:build unit
 
 package api
 
 import (
+	"goApp/authentication"
 	db "goApp/db/sqlc"
 	"goApp/util"
 	"net/http"
@@ -27,6 +29,10 @@ func TestCreateAccountAPI(t *testing.T) {
 	c, _ := gin.CreateTestContext(rec)
 
 	c.Request = req
+	payload := authentication.PasetoPayload{
+		Issuer: "john",
+	}
+	c.Set("authorization_key", &payload)
 
 	conn, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
